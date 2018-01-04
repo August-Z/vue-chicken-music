@@ -13,7 +13,15 @@
       <div class="recommend-list">
         <h1 class="list-title">热门歌单推荐</h1>
         <ul>
-
+          <li v-for="item in discList" class="item">
+            <div class="icon">
+              <img width="60" height="60" :src="item.imgurl">
+            </div>
+            <div class="text">
+              <h2 class="name" v-html="item.creator.name"></h2>
+              <p class="desc" v-html="item.dissname"></p>
+            </div>
+          </li>
         </ul>
       </div>
     </div>
@@ -24,11 +32,17 @@
   import Slider from 'base/slider/slider'
   import {getRecommend, getDiscList} from 'api/recommend'
   import {ERR_OK} from 'api/config'
+  import Vue from 'vue'
+  import axios from 'axios'
+  import vueAxios from 'vue-axios'
+
+  Vue.use(vueAxios, axios)
 
   export default {
     data () {
       return {
-        recommends: []
+        recommends: [],
+        discList: []
       }
     },
     created () {
@@ -50,7 +64,7 @@
         getDiscList()
           .then((res) => {
             if (res.code === ERR_OK) {
-              console.log(res.data.list)
+              this.discList = res.data.list
             }
           })
       }
