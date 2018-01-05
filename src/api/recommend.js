@@ -14,6 +14,7 @@ export function getRecommend () {
   return jsonp(url, data, options)
 }
 
+// Axios 反向代理后端,请求的地址为 dev-server
 export function getDiscList () {
   const url = '/api/getDiscList'
 

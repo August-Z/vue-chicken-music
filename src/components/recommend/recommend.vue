@@ -1,42 +1,49 @@
 <template>
   <div class="recommend">
-    <div class="recommend-content">
-      <div v-if="recommends.length" class="slider-wrapper">
-        <slider>
-          <div v-for="item in recommends">
-            <a :href="item.linkUrl">
-              <img :src="item.picUrl" alt="">
-            </a>
-          </div>
-        </slider>
-      </div>
-      <div class="recommend-list">
-        <h1 class="list-title">热门歌单推荐</h1>
-        <ul>
-          <li v-for="item in discList" class="item">
-            <div class="icon">
-              <img width="60" height="60" :src="item.imgurl">
+    <!--scroll not has header-->
+    <scroll ref="scroll" class="recommend-content" :data="discList">
+      <!--content-->
+      <div>
+        <!--轮播-->
+        <div v-if="recommends.length" class="slider-wrapper">
+          <slider>
+            <div v-for="item in recommends">
+              <a :href="item.linkUrl">
+                <img class="needsclick" @load="loadImage" :src="item.picUrl" alt="">
+              </a>
             </div>
-            <div class="text">
-              <h2 class="name" v-html="item.creator.name"></h2>
-              <p class="desc" v-html="item.dissname"></p>
-            </div>
-          </li>
-        </ul>
+          </slider>
+        </div>
+        <!--歌单列表-->
+        <div class="recommend-list">
+          <h1 class="list-title">热门歌单推荐</h1>
+          <ul>
+            <li v-for="item in discList" class="item">
+              <div class="icon">
+                <img width="60" height="60" v-lazy="item.imgurl">
+              </div>
+              <div class="text">
+                <h2 class="name" v-html="item.creator.name"></h2>
+                <p class="desc" v-html="item.dissname"></p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+      <!--loading-->
+      <div class="loading-container" v-show="!discList.length">
+        <loading></loading>
+      </div>
+    </scroll>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import Loading from 'base/loading/loading'
+  import Scroll from 'base/scroll/scroll'
   import Slider from 'base/slider/slider'
   import {getRecommend, getDiscList} from 'api/recommend'
   import {ERR_OK} from 'api/config'
-  import Vue from 'vue'
-  import axios from 'axios'
-  import vueAxios from 'vue-axios'
-
-  Vue.use(vueAxios, axios)
 
   export default {
     data () {
@@ -46,8 +53,8 @@
       }
     },
     created () {
-      this._getRecommend()
-      this._getDiscList()
+      this._getRecommend()  // 轮播
+      this._getDiscList() // 歌单列表
     },
     methods: {
       // 获取轮播歌单 json 数据
@@ -67,10 +74,19 @@
               this.discList = res.data.list
             }
           })
+      },
+      loadImage () {
+        // 设置标识符，只要有1张图片加载出来，立马撑开高度并调用 Scroll 的刷新方法
+        if (!this.checkLoaded) {
+          this.$refs.scroll.refresh()
+          this.checkLoaded = true
+        }
       }
     },
     components: {
-      Slider
+      Slider,
+      Scroll,
+      Loading
     }
   }
 </script>
