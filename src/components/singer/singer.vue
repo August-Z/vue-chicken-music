@@ -1,11 +1,12 @@
 <template>
   <div class="singer">
-    歌手页面
+    <list-view v-if="singers.length" :data="singers"></list-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import Singer from 'common/js/singer'
+  import ListView from 'base/listview/listview'
   import {getSingerList} from 'api/singer'
   import {ERR_OK} from 'api/config'
 
@@ -25,8 +26,8 @@
       _getSingerList () {
         getSingerList().then((res) => {
           if (res.code === ERR_OK) {
-            this.singers = res.data.list
-            console.log(this.normalizeSinger(this.singers))
+            this.singers = this.normalizeSinger(res.data.list)
+            console.log(this.singers)
           }
         })
       },
@@ -78,6 +79,9 @@
         })
         return hot.concat(ret)
       }
+    },
+    components: {
+      ListView
     }
   }
 </script>
