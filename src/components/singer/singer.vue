@@ -5,6 +5,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import Singer from 'common/js/singer'
   import {getSingerList} from 'api/singer'
   import {ERR_OK} from 'api/config'
 
@@ -25,7 +26,7 @@
         getSingerList().then((res) => {
           if (res.code === ERR_OK) {
             this.singers = res.data.list
-            console.log(this.singers)
+            console.log(this.normalizeSinger(this.singers))
           }
         })
       },
@@ -36,16 +37,46 @@
             items: []
           }
         }
+        // 处理请求到的列表数据
         list.forEach((item, index) => {
-          // 热门歌手
+          // 前十位放入热门歌手数组
           if (index < HOT_SINGER_LEN) {
-            map.hot.items.push({
+            map.hot.items.push(new Singer({
               id: item.Fsinger_mid,
-              name: item.Fsinger_name,
-              avatar: `https://y.gtimg.cn/music/photo_new/T001R300x300M000${item.Fsinger_mid}.jpg?max_age=2592000`
-            })
+              name: item.Fsinger_name
+            }))
           }
+          // 检查每一条数据的开头字母
+          const key = item.Findex
+          // 如果我们的集合中还没有这个开头字母
+          if (!map[key]) {
+            // 就已这个 Findex 作为 title 形成对象，放入 map 中
+            map[key] = {
+              title: key,
+              items: []
+            }
+          }
+          // 按照开头字母来存储歌手列表数据
+          map[key].items.push(new Singer({
+            id: item.Fsinger_mid,
+            name: item.Fsinger_name
+          }))
         })
+        // 为了得到有序列表，我们需要处理 map
+        let hot = []
+        let ret = []
+        for (let key in map) {
+          let val = map[key]
+          if (val.title.match(/[a-zA-Z]/)) {
+            ret.push(val)
+          } else if (val.title === HOT_NAME) {
+            hot.push(val)
+          }
+        }
+        ret.sort((a, b) => {
+          return a.title.charCodeAt(0) - b.title.charCodeAt(0)
+        })
+        return hot.concat(ret)
       }
     }
   }
