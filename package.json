@@ -13,12 +13,12 @@
   "dependencies": {
     "axios": "^0.17.1",
     "babel-runtime": "^6.26.0",
+    "better-scroll": "^1.7.2",
     "fastclick": "^1.0.6",
     "jsonp": "^0.2.1",
     "vue": "^2.5.13",
     "vue-lazyload": "^1.1.4",
-    "vue-router": "^3.0.1",
-    "better-scroll": "^1.7.2"
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

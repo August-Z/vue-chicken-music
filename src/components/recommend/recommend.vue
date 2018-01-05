@@ -95,21 +95,21 @@
   @import "~common/stylus/variable"
 
   .recommend
-    position: fixed
+    position fixed
     width: 100%
     top: 88px
     bottom: 0
     .recommend-content
-      height: 100%
-      overflow: hidden
+      height 100%
+      overflow hidden
       .slider-wrapper
         position: relative
         width: 100%
         overflow: hidden
       .recommend-list
         .list-title
-          height: 65px
-          line-height: 65px
+          height 65px
+          line-height 65px
           text-align: center
           font-size: $font-size-medium
           color: $color-theme
