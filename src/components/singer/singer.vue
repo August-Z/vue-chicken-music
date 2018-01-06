@@ -1,6 +1,6 @@
 <template>
-  <div class="singer">
-    <list-view v-if="singers.length" :data="singers"></list-view>
+  <div class="singer" ref="singer">
+    <list-view v-if="singers.length" :data="singers" ref="list"></list-view>
   </div>
 </template>
 
@@ -27,7 +27,6 @@
         getSingerList().then((res) => {
           if (res.code === ERR_OK) {
             this.singers = this.normalizeSinger(res.data.list)
-            console.log(this.singers)
           }
         })
       },
