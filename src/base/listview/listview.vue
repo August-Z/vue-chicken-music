@@ -26,6 +26,9 @@
         </li>
       </ul>
     </div>
+    <div class="list-fixed" v-show="fixedTitle" ref="fixed">
+      <h1 class="fixed-title">{{fixedTitle}}</h1>
+    </div>
     <!--loading-->
     <div v-show="!data.length" class="loading-container">
       <loading></loading>
@@ -39,6 +42,7 @@
   import {getData} from 'common/js/dom'
 
   const ANCHOR_HEIGHT = 18
+  const TITLE_HEIGHT = 30
 
   export default {
     props: {
@@ -52,12 +56,19 @@
         return this.data.map((group) => {
           return group.title.substring(0, 1)
         })
+      },
+      fixedTitle () {
+        if (this.scrollY >= 0) {
+          return
+        }
+        return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
       }
     },
     data () {
       return {
         currentIndex: 0,
-        scrollY: -1
+        scrollY: -1,
+        diff: -1
       }
     },
     created () {
@@ -104,6 +115,16 @@
         }
       },
       _scrollTo (index) {
+        // 处理 padding 区域点击滑动
+        if (!index && index !== 0) {
+          return
+        }
+        // 处理超出快速入口框的上下滑动
+        if (index < 0) {
+          index = 0
+        } else if (index > this.listHeight.length - 2) {
+          index = this.listHeight.length - 2
+        }
         this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
         this.scrollY = this.$refs.listview.scroll.y
       }
@@ -123,18 +144,26 @@
           return
         }
 
-        console.log(this.listHeight)
         // 在中间部分滚动
         for (let i = 0; i < listHeight.length - 1; i++) {
           let height1 = listHeight[i]
           let height2 = listHeight[i + 1]
           if (-newY >= height1 && -newY < height2) {
             this.currentIndex = i
+            this.diff = height2 + newY
             return
           }
         }
         // 当滚动到底部，且-newY大于最后一个元素的上限
         this.currentIndex = listHeight.length - 2
+      },
+      diff (newVal) {
+        let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
+        if (this.fixedTop === fixedTop) {
+          return
+        }
+        this.fixedTop = fixedTop
+        this.$refs.fixed.style.transform = `translate3d(0,${fixedTop}px,0)`
       }
     },
     components: {
