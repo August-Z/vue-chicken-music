@@ -1,6 +1,7 @@
 <template>
   <div class="singer" ref="singer">
     <list-view v-if="singers.length" :data="singers" ref="list"></list-view>
+    <router-view></router-view>
   </div>
 </template>
 
