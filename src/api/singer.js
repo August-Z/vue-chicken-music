@@ -28,9 +28,8 @@ export function getSingerDetail (singerId) {
     platform: 'yqq',
     order: 'listen',
     begin: 0,
-    num: 100,
+    num: 80,
     songstatus: 1,
-    g_tk: 1664029744,
     singermid: singerId
   })
 
