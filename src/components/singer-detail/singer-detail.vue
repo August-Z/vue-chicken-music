@@ -8,7 +8,7 @@
   import {mapGetters} from 'vuex'
   import {getSingerDetail} from 'api/singer'
   import {ERR_OK} from 'api/config'
-  import {createSong} from 'common/js/song'
+  import {createSong, isValidMusic} from 'common/js/song'
 
   export default {
     data () {
@@ -17,8 +17,18 @@
       }
     },
     created () {
-      console.log(this.singer)
       this._getDetail()
+    },
+    computed: {
+      title () {
+        return this.singer.name
+      },
+      bgImage () {
+        return this.singer.avatar
+      },
+      ...mapGetters([
+        'singer'
+      ])
     },
     methods: {
       _getDetail () {
