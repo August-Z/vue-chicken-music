@@ -5,7 +5,52 @@
 </template>
 
 <script type="text/ecmascript-6">
-  export default {}
+  import {mapGetters} from 'vuex'
+  import {getSingerDetail} from 'api/singer'
+  import {ERR_OK} from 'api/config'
+  import {createSong} from 'common/js/song'
+
+  export default {
+    data () {
+      return {
+        songs: []
+      }
+    },
+    created () {
+      console.log(this.singer)
+      this._getDetail()
+    },
+    methods: {
+      _getDetail () {
+        if (!this.singer.id) {
+          this.$router.push('/singer')
+          return
+        }
+        getSingerDetail(this.singer.id).then((res) => {
+          if (res.code === ERR_OK) {
+            this.songs = this._normalLizeSongs(res.data.list)
+            console.log(this.songs)
+          }
+        })
+      },
+      _normalLizeSongs (list) {
+        let ret = []
+        list.forEach((item) => {
+          let {musicData} = item
+          if (musicData.songid && musicData.albummid) {
+            // 使用工厂处理数据转换为我们需要的数据结构
+            ret.push(createSong(musicData))
+          }
+        })
+        return ret
+      }
+    },
+    computed: {
+      ...mapGetters([
+        'singer'
+      ])
+    }
+  }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
