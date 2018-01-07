@@ -1,10 +1,191 @@
 <template>
-  
+  <div class="player" v-show="playlist.length>0">
+    <!--normalPlayer-->
+    <transition name="normal"
+                @enter="enter"
+                @after-enter="afterEnter"
+                @leave="leave"
+                @after-leave="afterLeave">
+      <div class="normal-player" v-show="fullScreen">
+        <!--背景图-->
+        <div class="background">
+          <img width="100%" height="100%" :src="currentSong.image">
+        </div>
+        <!--top-->
+        <div class="top">
+          <div class="back" @click="back">
+            <i class="icon-back"></i>
+          </div>
+          <h1 class="title" v-html="currentSong.name"></h1>
+          <h2 class="subtitle" v-html="currentSong.singer"></h2>
+        </div>
+        <!--middle-->
+        <div class="middle">
+          <div class="middle-l">
+            <div class="cd-wrapper" ref="cdWrapper">
+              <div class="cd">
+                <img class="image" :src="currentSong.image">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--bottom-->
+        <div class="bottom">
+          <div class="operators">
+            <div class="icon i-left">
+              <i class="icon-sequence"></i>
+            </div>
+            <div class="icon i-left">
+              <i class="icon-prev"></i>
+            </div>
+            <!--播放与暂停-->
+            <div class="icon i-center">
+              <i @click="togglePlaying" :class="playIcon"></i>
+            </div>
+            <div class="icon i-right">
+              <i class="icon-next"></i>
+            </div>
+            <div class="icon i-right">
+              <i class="icon-not-favorite"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+    <!--miniPlayer-->
+    <transition name="mini">
+      <div class="mini-player" v-show="!fullScreen" @click="open">
+        <div class="icon">
+          <img width="40" height="40" :src="currentSong.image">
+        </div>
+        <div class="text">
+          <h2 class="name" v-html="currentSong.name"></h2>
+          <p class="desc" v-html="currentSong.singer"></p>
+        </div>
+        <div class="control">
+          <i @click.stop.prevent="togglePlaying" :class="miniIcon"></i>
+        </div>
+        <div class="control">
+          <i class="icon-playlist"></i>
+        </div>
+      </div>
+    </transition>
+    <!--播放器内核-->
+    <audio ref="audio" :src="currentSong.url"></audio>
+  </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import {mapGetters, mapMutations} from 'vuex'
+  import animations from 'create-keyframe-animation'
+  import {prefixStyle} from 'common/js/dom'
+
+  const transform = prefixStyle('transform')
+
   export default {
-    name: "player"
+    computed: {
+      playIcon () {
+        return this.playing ? 'icon-pause' : 'icon-play'
+      },
+      miniIcon () {
+        return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+      },
+      ...mapGetters([
+        'fullScreen',
+        'playlist',
+        'currentSong',
+        'playing'
+      ])
+    },
+    methods: {
+      back () {
+        this.setFullScreen(false)
+      },
+      open () {
+        this.setFullScreen(true)
+      },
+      enter (el, done) {
+        const {x, y, scale} = this._getPosAndScale()
+
+        // normal player 与 mini player 之间的转场动画
+        let animation = {
+          0: {
+            transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
+          },
+          60: {
+            transform: `translate3d(0,0,0) scale(1.1)`
+          },
+          100: {
+            transform: `translate3d(0,0,0) scale(1.0)`
+          }
+        }
+
+        // 调用动画库
+        animations.registerAnimation({
+          name: 'move',
+          animation,
+          presets: {
+            duration: 400,
+            easing: 'linear'
+          }
+        })
+
+        // 运行动画
+        animations.runAnimation(this.$refs.cdWrapper, 'move', done)
+      },
+      afterEnter () {
+        // 停止动画
+        animations.unregisterAnimation('move')
+        this.$refs.cdWrapper.style.animation = ''
+      },
+      leave (el, done) {
+        const {x, y, scale} = this._getPosAndScale()
+        this.$refs.cdWrapper.style.transition = 'all 0.4s'
+        this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
+        this.$refs.cdWrapper.addEventListener('transitionend', done)
+      },
+      afterLeave () {
+        this.$refs.cdWrapper.style.transition = ''
+        this.$refs.cdWrapper.style[transform] = ''
+      },
+      togglePlaying () {
+        this.setPlayingState(!this.playing)
+      },
+      _getPosAndScale () {
+        const targetWidth = 40
+        const paddingLeft = 40
+        const paddingBottom = 30
+        const paddingTop = 80
+        const width = window.innerWidth * 0.8
+        const scale = targetWidth / width
+        const x = -(window.innerWidth / 2 - paddingLeft)
+        const y = window.innerHeight - paddingTop - paddingBottom - (width / 2)
+        return {
+          x,
+          y,
+          scale
+        }
+      },
+      ...mapMutations({
+        setFullScreen: 'SET_FULL_SCREEN',
+        setPlayingState: 'SET_PLAYING_STATE'
+      })
+    },
+    watch: {
+      currentSong () {
+        // 改变歌曲时，立刻播放
+        this.$nextTick(() => {
+          this.$refs.audio.play()
+        })
+      },
+      playing (newPlaying) {
+        // 监听 vuex 中的 playing state
+        const audio = this.$refs.audio
+        this.$nextTick(() => {
+          newPlaying ? audio.play() : audio.pause()
+        })
+      }
+    }
   }
 </script>
 
