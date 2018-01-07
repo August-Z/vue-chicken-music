@@ -34,6 +34,7 @@
           <div class="progress-wrapper">
             <span class="time time-l">{{format(currentTime)}}</span>
             <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent"></progress-bar>
             </div>
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
@@ -79,8 +80,8 @@
       </div>
     </transition>
     <!--播放器内核-->
-    <audio ref="audio" :src="currentSong.url" @playing="ready"
-           @error="error" @timeupdate="updateTime"></audio>
+    <audio ref="audio" :src="currentSong.url" @playing="ready" @error="error"
+           @timeupdate="updateTime" @pause="paused"></audio>
   </div>
 </template>
 
@@ -88,6 +89,7 @@
   import {mapGetters, mapMutations} from 'vuex'
   import animations from 'create-keyframe-animation'
   import {prefixStyle} from 'common/js/dom'
+  import ProgressBar from 'base/progress-bar/progress-bar'
 
   const transform = prefixStyle('transform')
 
@@ -111,6 +113,9 @@
       disableCls () {
         return this.songReady ? '' : 'disable'
       },
+      percent () {
+        return this.currentTime / this.currentSong.duration
+      },
       ...mapGetters([
         'fullScreen',
         'playlist',
@@ -118,6 +123,9 @@
         'playing',
         'currentIndex'
       ])
+    },
+    created () {
+      this.touch = {}
     },
     methods: {
       back () {
@@ -209,6 +217,9 @@
       ready () {
         this.songReady = true
       },
+      paused () {
+        this.setPlayingState(false)
+      },
       error () {
         this.songReady = true
       },
@@ -251,22 +262,35 @@
       })
     },
     watch: {
-      currentSong () {
-        // 改变歌曲时，立刻播放
-        this.$nextTick(() => {
+      currentSong (newSong, oldSong) {
+        if (!newSong.id) {
+          return
+        }
+        if (newSong.id === oldSong.id) {
+          return
+        }
+        this.songReady = false
+        clearTimeout(this.timer)
+        this.timer = setTimeout(() => {
           this.$refs.audio.play()
-        })
+        }, 1000)
       },
       /**
        * 监听 state 中的 playing 状态
        * @param newPlaying
        */
       playing (newPlaying) {
+        if (!this.songReady) {
+          return
+        }
         const audio = this.$refs.audio
         this.$nextTick(() => {
           newPlaying ? audio.play() : audio.pause()
         })
       }
+    },
+    components: {
+      ProgressBar
     }
   }
 </script>
