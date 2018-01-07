@@ -23,7 +23,7 @@
         <div class="middle">
           <div class="middle-l">
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd">
+              <div class="cd" :class="cdCls">
                 <img class="image" :src="currentSong.image">
               </div>
             </div>
@@ -56,7 +56,7 @@
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon">
-          <img width="40" height="40" :src="currentSong.image">
+          <img :src="currentSong.image" :class="cdCls" width="40" height="40">
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
@@ -84,6 +84,9 @@
 
   export default {
     computed: {
+      cdCls () {
+        return this.playing ? 'play' : 'play pause'
+      },
       playIcon () {
         return this.playing ? 'icon-pause' : 'icon-play'
       },
@@ -272,8 +275,10 @@
                 box-sizing: border-box
                 border-radius: 50%
                 border: 10px solid rgba(255, 255, 255, 0.1)
-              .play
+              &.play
                 animation: rotate 20s linear infinite
+              &.pause
+                animation-play-state paused
           .playing-lyric-wrapper
             width: 80%
             margin: 30px auto 0 auto
@@ -393,15 +398,12 @@
         width: 40px
         height: 40px
         padding: 0 10px 0 20px
-        .imgWrapper
-          height: 100%
-          width: 100%
-          img
-            border-radius: 50%
-            &.play
-              animation: rotate 10s linear infinite
-            &.pause
-              animation-play-state: paused
+        img
+          border-radius: 50%
+          &.play
+            animation: rotate 10s linear infinite
+          &.pause
+            animation-play-state: paused
       .text
         display: flex
         flex-direction: column
