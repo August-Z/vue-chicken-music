@@ -140,7 +140,7 @@
     background: $color-background
     .back
       position absolute
-      top: 0
+      top: $android-padding-top
       left: 6px
       z-index: 50
       .icon-back
@@ -150,7 +150,7 @@
         color: $color-theme
     .title
       position: absolute
-      top: 0
+      top: $android-padding-top
       left: 10%
       z-index: 40
       width: 80%

@@ -333,7 +333,7 @@
             transform: rotate(-90deg)
         .title
           width: 70%
-          margin: 0 auto
+          margin: $android-padding-top auto 0
           line-height: 40px
           text-align: center
           no-wrap()

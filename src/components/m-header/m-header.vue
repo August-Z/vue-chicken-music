@@ -15,7 +15,8 @@
 
   .m-header
     position: relative
-    height: 44px
+    height 40px
+    padding-top 4px
     text-align: center
     color: $color-theme
     font-size: 0
