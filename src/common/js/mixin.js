@@ -19,7 +19,8 @@ export const playlistMixin = {
   },
   methods: {
     handlePlaylist () {
-
+      // 抛异常
+      throw new Error('component must implement handlePlaylist method')
     }
   }
 }
