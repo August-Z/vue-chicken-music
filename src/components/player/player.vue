@@ -39,8 +39,9 @@
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
           <div class="operators">
-            <div class="icon i-left">
-              <i class="icon-sequence"></i>
+            <!--播放模式-->
+            <div class="icon i-left" @click="changeMode">
+              <i :class="iconMode"></i>
             </div>
             <!--上一首歌-->
             <div class="icon i-left" :class="disableCls">
@@ -72,7 +73,9 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <i @click.stop.prevent="togglePlaying" :class="miniIcon"></i>
+          <progress-circle :radius="radius" :percent="percent">
+            <i @click.stop.prevent="togglePlaying" class="icon-mini" :class="miniIcon"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
@@ -90,6 +93,8 @@
   import animations from 'create-keyframe-animation'
   import {prefixStyle} from 'common/js/dom'
   import ProgressBar from 'base/progress-bar/progress-bar'
+  import ProgressCircle from 'base/progress-circle/progress-circle'
+  import {playMode} from 'common/js/config'
 
   const transform = prefixStyle('transform')
 
@@ -97,7 +102,8 @@
     data () {
       return {
         songReady: false,
-        currentTime: 0
+        currentTime: 0,
+        radius: 32
       }
     },
     computed: {
@@ -106,6 +112,9 @@
       },
       playIcon () {
         return this.playing ? 'icon-pause' : 'icon-play'
+      },
+      iconMode () {
+        return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
       },
       miniIcon () {
         return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
@@ -239,6 +248,10 @@
           this.togglePlaying()
         }
       },
+      changeMode () {
+        const mode = (this.mode + 1) % 3
+        this.setPlayMode(mode)
+      },
       _pad (num, n = 2) {
         let len = num.toString().length
         while (len < n) {
@@ -265,7 +278,8 @@
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayingState: 'SET_PLAYING_STATE',
-        setCurrentIndex: 'SET_CURRENT_INDEX'
+        setCurrentIndex: 'SET_CURRENT_INDEX',
+        setPlayMode: 'SET_PLAY_MODE'
       })
     },
     watch: {
@@ -280,7 +294,7 @@
         clearTimeout(this.timer)
         this.timer = setTimeout(() => {
           this.$refs.audio.play()
-        }, 1000)
+        }, 0)
       },
       /**
        * 监听 state 中的 playing 状态
@@ -297,7 +311,8 @@
       }
     },
     components: {
-      ProgressBar
+      ProgressBar,
+      ProgressCircle
     }
   }
 </script>
