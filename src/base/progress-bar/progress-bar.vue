@@ -25,7 +25,7 @@
         default: 0
       }
     },
-    created() {
+    created () {
       this.touch = {}
     },
     methods: {
@@ -33,12 +33,12 @@
        * Touch Event
        * @param e
        */
-      progressTouchStart(e) {
+      progressTouchStart (e) {
         this.touch.initiated = true
         this.touch.startX = e.touches[0].pageX
         this.touch.left = this.$refs.progress.clientWidth
       },
-      progressTouchMove(e) {
+      progressTouchMove (e) {
         if (!this.touch.initiated) {
           return
         }
@@ -47,7 +47,7 @@
         this._offset(offsetWidth)
         this.$emit('percentChanging', this._getPercent())
       },
-      progressTouchEnd() {
+      progressTouchEnd () {
         this.touch.initiated = false
         this._triggerPercent()
       },
@@ -55,7 +55,7 @@
        * Click Event
        * @param e
        */
-      progressClick(e) {
+      progressClick (e) {
         const rect = this.$refs.progressBar.getBoundingClientRect()
         const offsetWidth = e.pageX - rect.left
         this._offset(offsetWidth)
@@ -67,27 +67,31 @@
        * 设置偏移
        * @param percent
        */
-      setProgressOffset(percent) {
+      setProgressOffset (percent) {
         if (percent >= 0 && !this.touch.initiated) {
           const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
           const offsetWidth = percent * barWidth
           this._offset(offsetWidth)
         }
       },
-      _triggerPercent() {
+      /**
+       * 派发进度改变事件
+       * @private
+       */
+      _triggerPercent () {
         this.$emit('percentChange', this._getPercent())
       },
-      _offset(offsetWidth) {
+      _offset (offsetWidth) {
         this.$refs.progress.style.width = `${offsetWidth}px`
         this.$refs.progressBtn.style[transform] = `translate3d(${offsetWidth}px,0,0)`
       },
-      _getPercent() {
+      _getPercent () {
         const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
         return this.$refs.progress.clientWidth / barWidth
       }
     },
     watch: {
-      percent(newPercent) {
+      percent (newPercent) {
         this.setProgressOffset(newPercent)
       }
     }
