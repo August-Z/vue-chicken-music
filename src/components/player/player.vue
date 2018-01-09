@@ -84,7 +84,7 @@
     </transition>
     <!--播放器内核-->
     <audio ref="audio" :src="currentSong.url" @playing="ready" @error="error"
-           @timeupdate="updateTime" @pause="paused"></audio>
+           @timeupdate="updateTime" @pause="paused" @ended="end"></audio>
   </div>
 </template>
 
@@ -92,6 +92,7 @@
   import {mapGetters, mapMutations} from 'vuex'
   import animations from 'create-keyframe-animation'
   import {prefixStyle} from 'common/js/dom'
+  import {shuffle} from 'common/js/util'
   import ProgressBar from 'base/progress-bar/progress-bar'
   import ProgressCircle from 'base/progress-circle/progress-circle'
   import {playMode} from 'common/js/config'
@@ -130,7 +131,9 @@
         'playlist',
         'currentSong',
         'playing',
-        'currentIndex'
+        'currentIndex',
+        'mode',
+        'sequenceList'
       ])
     },
     created () {
@@ -193,6 +196,19 @@
         }
         this.setPlayingState(!this.playing)
       },
+      end () {
+        this.currentTime = 0
+        if (this.mode === playMode.loop) {
+          this.loop()
+        } else {
+          this.next()
+        }
+      },
+      loop () {
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+        this.setPlayingState(true)
+      },
       next () {
         // 如果歌曲没有准备好，直接 return
         if (!this.songReady) {
@@ -243,7 +259,8 @@
       },
       onProgressBarChange (percent) {
         // 操作 audio 实例来改变当前歌曲的进度
-        this.$refs.audio.currentTime = this.currentSong.duration * percent
+        const currentTime = this.currentSong.duration * percent
+        this.currentTime = this.$refs.audio.currentTime = currentTime
         if (!this.playing) {
           this.togglePlaying()
         }
@@ -251,6 +268,23 @@
       changeMode () {
         const mode = (this.mode + 1) % 3
         this.setPlayMode(mode)
+        let list = null
+
+        if (mode === playMode.random) {
+          list = shuffle(this.sequenceList)
+        } else {
+          list = this.sequenceList
+        }
+        // 保证 currentIndex 不改变
+        this.resetCurrentIndex(list)
+        this.setPlayList(list)
+      },
+      resetCurrentIndex (list) {
+        // 寻找索引
+        let index = list.findIndex((item) => {
+          return item.id === this.currentSong.id
+        })
+        this.setCurrentIndex(index)
       },
       _pad (num, n = 2) {
         let len = num.toString().length
@@ -279,18 +313,18 @@
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayingState: 'SET_PLAYING_STATE',
         setCurrentIndex: 'SET_CURRENT_INDEX',
-        setPlayMode: 'SET_PLAY_MODE'
+        setPlayMode: 'SET_PLAY_MODE',
+        setPlayList: 'SET_PLAYLIST'
       })
     },
     watch: {
       currentSong (newSong, oldSong) {
-        if (!newSong.id) {
+        if (!newSong.id || !newSong.url || newSong.id === oldSong.id) {
           return
         }
-        if (newSong.id === oldSong.id) {
-          return
-        }
+
         this.songReady = false
+
         clearTimeout(this.timer)
         this.timer = setTimeout(() => {
           this.$refs.audio.play()
