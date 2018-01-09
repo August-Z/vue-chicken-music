@@ -57,7 +57,8 @@
        */
       progressClick (e) {
         const rect = this.$refs.progressBar.getBoundingClientRect()
-        const offsetWidth = e.pageX - rect.left
+        // (progressBtnWidth / 2) 修复点击不精确的 bug！
+        const offsetWidth = e.pageX - rect.left - (progressBtnWidth / 2)
         this._offset(offsetWidth)
         // 当点击 progressBtn 的时候，e.offsetX 获取不对
         // this._offset(e.offsetX)
