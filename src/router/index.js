@@ -5,20 +5,25 @@ import Singer from 'components/singer/singer'
 import Rank from 'components/rank/rank'
 import Search from 'components/search/search'
 import SingerDetail from 'components/singer-detail/singer-detail'
+import Disc from 'components/disc/disc'
 
 Vue.use(Router)
 
 const router = new Router({
-  mode: 'history',
   routes: [
     {
-      path: '/',
-      redirect: '/recommend'
+      path: '/'
     },
     {
       path: '/recommend',
       name: 'recommend',
-      component: Recommend
+      component: Recommend,
+      children: [
+        {
+          path: ':id',
+          component: Disc
+        }
+      ]
     },
     {
       path: '/singer',
@@ -42,13 +47,6 @@ const router = new Router({
       component: Search
     }
   ]
-})
-
-router.beforeEach(({name}, from, next) => {
-  next(() => {
-    document.title = name
-  })
-  next()
 })
 
 export default router

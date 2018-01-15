@@ -2,6 +2,8 @@ import jsonp from 'common/js/jsonp'
 import {commonParams, options} from './config'
 import axios from 'axios'
 
+const debug = process.env.NODE_ENV !== 'production'
+
 export function getRecommend () {
   const url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg'
 
@@ -16,7 +18,7 @@ export function getRecommend () {
 
 // Axios 反向代理后端,请求的地址为 dev-server
 export function getDiscList () {
-  const url = '/api/getDiscList'
+  const url = debug ? '/api/getDiscList' : 'http://ustbhuangyi.com/music/api/getDiscList'
 
   const data = Object.assign({}, commonParams, {
     platform: 'yqq',
@@ -34,5 +36,24 @@ export function getDiscList () {
     params: data
   }).then((res) => {
     return Promise.resolve(res.data)
+  }).catch((err) => {
+    console.log(err)
   })
+}
+
+export function getSongList (disstid) {
+  const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+
+  const data = Object.assign({}, commonParams, {
+    disstid,
+    type: 1,
+    json: 1,
+    utf8: 1,
+    onlysong: 0,
+    platform: 'yqq',
+    hostUin: 0,
+    needNewCode: 0
+  })
+
+  return jsonp(url, data, options)
 }

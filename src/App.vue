@@ -19,6 +19,9 @@
       MHeader,
       Tab,
       Player
+    },
+    created () {
+      this.$router.replace('/recommend')
     }
   }
 </script>
