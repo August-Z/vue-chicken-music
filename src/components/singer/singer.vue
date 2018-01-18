@@ -28,9 +28,11 @@
     },
     methods: {
       handlePlaylist (playlist) {
-        // const bottom = playlist.length > 0 ? '60px' : ''
-        // this.$refs.singer.style.bottom = bottom
-        // this.$refs.list.refresh()
+        const bottom = playlist.length > 0 ? '60px' : ''
+        this.$refs.singer.style.bottom = bottom
+        setTimeout(() => {
+          this.$refs.list.refresh()
+        }, 20)
       },
       selectSinger (singer) {
         this.$router.push({
