@@ -8,7 +8,6 @@
   import MusicList from 'components/music-list/music-list'
   import {mapGetters} from 'vuex'
   import {getSongList} from 'api/recommend'
-  import {ERR_OK} from 'api/config'
   import {createSong, isValidMusic} from 'common/js/song'
 
   export default {

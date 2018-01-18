@@ -1,6 +1,21 @@
 <template>
-  <div>
-    排行页面
+  <div class="rank">
+    <div class="toplist">
+      <ul>
+        <li class="item">
+          <div class="icon">
+            <img width="100" height="100" />
+          </div>
+          <ul class="songlist">
+            <li class="song">
+              <span></span>
+              <span></span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <router-view></router-view>
   </div>
 </template>
 
