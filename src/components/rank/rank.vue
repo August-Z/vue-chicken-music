@@ -61,6 +61,13 @@
         setTopList: 'SET_TOP_LIST'
       })
     },
+    watch: {
+      topList () {
+        setTimeout(() => {
+          this.$Lazyload.lazyLoadHandler()
+        }, 20)
+      }
+    },
     components: {
       Scroll,
       Loading
