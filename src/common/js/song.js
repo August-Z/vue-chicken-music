@@ -1,12 +1,12 @@
-import {getLyric, getVKey} from 'api/song'
-import {getUid} from './uid'
-import {ERR_OK} from 'api/config'
-import {Base64} from 'js-base64'
+import { getLyric, getVKey } from 'api/song'
+import { getUid } from './uid'
+import { ERR_OK } from 'api/config'
+import { Base64 } from 'js-base64'
 
 let urlMap = {}
 
 export default class Song {
-  constructor ({id, mid, singer, name, album, duration, image}) {
+  constructor({ id, mid, singer, name, album, duration, image }) {
     this.id = id
     this.mid = mid
     this.singer = singer
@@ -23,7 +23,7 @@ export default class Song {
     }
   }
 
-  getLyric () {
+  getLyric() {
     if (this.lyric) {
       return Promise.resolve(this.lyric)
     }
@@ -40,7 +40,7 @@ export default class Song {
     })
   }
 
-  _genUrl () {
+  _genUrl() {
     if (this.url) {
       return
     }
@@ -55,7 +55,7 @@ export default class Song {
 }
 
 // 工厂模式生产 Song 歌曲对象
-export function createSong (musicData) {
+export function createSong(musicData) {
   return new Song({
     id: musicData.songid,
     mid: musicData.songmid,
@@ -68,7 +68,7 @@ export function createSong (musicData) {
 }
 
 // 处理歌手数据
-function filterSinger (singer) {
+function filterSinger(singer) {
   let ret = []
   if (!singer) {
     return ''
@@ -79,6 +79,6 @@ function filterSinger (singer) {
   return ret.join('/')
 }
 
-export function isValidMusic (musicData) {
+export function isValidMusic(musicData) {
   return musicData.songid && musicData.albummid && (!musicData.pay || musicData.pay.payalbumprice === 0)
 }

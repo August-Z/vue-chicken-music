@@ -60,7 +60,6 @@
       this._getRecommend()  // 轮播
       this._getDiscList() // 歌单列表
     },
-    mou
     methods: {
       handlePlaylist (playlist) {
         const bottom = playlist.length > 0 ? '60px' : ''
